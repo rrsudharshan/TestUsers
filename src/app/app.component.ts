@@ -15,6 +15,10 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    console.log('hkhkhkhk');
+
+
     this
       .userService
       .getUsers()
