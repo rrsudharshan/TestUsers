@@ -10,7 +10,7 @@ export class UserService {
   getUsers() {
     return this
       .http
-      .get('https://jsonplaceholder.typicode.com/users')
+      .get('https://jsonplaceholder.typicode.com/user')
       .toPromise()
   }
 

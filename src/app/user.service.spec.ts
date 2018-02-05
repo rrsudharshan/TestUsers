@@ -1,9 +1,16 @@
 import {TestBed, inject} from '@angular/core/testing';
+import {validate} from 'codelyzer/walkerFactory/walkerFn';
 
 import {UserService} from './user.service';
 import {HttpModule} from '@angular/http';
 
 describe('UserService', () => {
+  let originalTimeout;
+  beforeEach(function() {
+    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+  });
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [HttpModule],
@@ -15,6 +22,41 @@ describe('UserService', () => {
   it('should be created', inject([UserService], (service: UserService) => {
     expect(service).toBeTruthy();
   }));
+  const throwMeAnError = function() {
+    throw new Error('user data is not correct .');
+  };
+
+  describe('This custom matcher example', function() {
+
+    beforeEach(function() {
+      // We should add custom matched in beforeEach() function.
+      jasmine.addMatchers ({
+        validateAge: function() {
+          return {
+            compare: function(actual,expected) {
+              var result = {};
+              result.pass = (actual > = 13 && actual < = 19);
+              return result;
+            }
+          };
+        }
+      });
+    });
+
+    it('Lets see whether u are teen or not', function() {
+      var myAge = 14;
+      expect(myAge).validateAge();
+    });
+
+    it('Lets see whether u are teen or not ', function() {
+      var yourAge = 18;
+      expect(yourAge).validateAge();
+    });
+
+  });
+
+
+
 
   it('should get all users', (done) => {
     const userService = TestBed.get(UserService);
@@ -24,14 +66,94 @@ describe('UserService', () => {
         const users = resp.json();
         expect(users.length).toEqual(10);
         expect(Array.isArray(users)).toBeTruthy();
-        it('user id should be a positive case', function() {
+        it('user id should be a positive case', function(done) {
           expect(0).toBeGreaterThan(users[0].id);
         });
         done();
-      })
-      .catch(done.fail);
+      }).catch(done.fail);
+  });
+
+  it('should get all users', (done) => {
+    const userService = TestBed.get(UserService);
+    userService
+      .getUsers()
+      .then((resp) => {
+        const users = resp.json();
+        for(let i=0; i<users.length ;i++){
+          it('user id should be a positive case', function(done) {
+            expect(users[i]).toBeGreaterThan(users[i].email);
+          });
+        }
+
+        done();
+      }).catch(done.fail);
+  });
+
+  afterEach(function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
   });
 });
+
+
+
+
+
+let customMatchers = {
+
+  toBeGoofy: function(util, customEqualityTesters) {
+
+    return {
+
+      compare: function(actual, expected) {
+
+        if (expected === undefined) {
+          expected = '';
+        }
+        let result = {};
+        result.pass = util.equals(actual.hyuk, "gawrsh" + expected, customEqualityTesters);
+
+        if (result.pass) {
+
+          result.message = "Expected " + actual + " not to be quite so goofy";
+        } else {
+
+          result.message = "Expected " + actual + " to be goofy, but it was not very goofy";
+        }
+
+        return result;
+      }
+    };
+  }
+};
+
+
+  describe("Custom matcher: 'toBeGoofy'", function() {
+
+    beforeEach(function() {
+      jasmine.addMatchers(customMatchers);
+    });
+    it("is available on an expectation", function() {
+      expect({
+        hyuk: 'gawrsh'
+      }).toBeGoofy();
+    });
+
+    it("can take an 'expected' parameter", function() {
+      expect({
+        hyuk: 'gawrsh is fun'
+      }).toBeGoofy(' is fun');
+    });
+
+    it("can be negated", function() {
+      expect({
+        hyuk: 'this is fun'
+      }).not.toBeGoofy();
+    });
+  });
+
+
+
+
 
 describe('Included matchers:', function() {
 
@@ -99,16 +221,21 @@ describe('Included matchers:', function() {
       expect(pi).not.toBeLessThan(e);
     });
   });
-  describe("A spec", function() {
-    var foo;
+  describe('A spec', function() {
+    let foo;
 
     beforeEach(function() {
       foo = 0;
       foo += 1;
     });
 
-    xit("is just a function, so it can contain any code", function() {
+    xit('is just a function, so it can contain any code', function() {
       expect(foo).toEqual(1);
     });
   });
+
+
+
+
+
 });
